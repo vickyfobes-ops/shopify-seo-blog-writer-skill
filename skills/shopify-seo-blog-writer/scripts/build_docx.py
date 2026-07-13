@@ -239,10 +239,12 @@ class DocumentBuilder:
         language: str,
         metadata: dict[str, Any],
         source_dir: Path,
+        allow_placeholders: bool = False,
     ) -> None:
         self.language = language
         self.metadata = metadata
         self.source_dir = source_dir
+        self.allow_placeholders = allow_placeholders
         self.root = ET.Element(w("document"))
         self.body = add(self.root, "body")
         self.relationships: list[tuple[str, str, str, str | None]] = [
@@ -454,13 +456,17 @@ class DocumentBuilder:
             path = self.source_dir / path
         try:
             payload = path.read_bytes()
-        except OSError:
-            return placeholder_png(), "png", True
+        except OSError as exc:
+            if self.allow_placeholders:
+                return placeholder_png(), "png", True
+            raise ValueError(f"image is missing or unreadable: {path}") from exc
         if payload.startswith(b"\x89PNG\r\n\x1a\n"):
             return payload, "png", False
         if payload.startswith(b"\xff\xd8"):
             return payload, "jpg", False
-        return placeholder_png(), "png", True
+        if self.allow_placeholders:
+            return placeholder_png(), "png", True
+        raise ValueError(f"image must be a valid PNG or JPEG file: {path}")
 
     def _drawing(self, relationship_id: str, filename: str, alt_text: str) -> ET.Element:
         drawing_id = self.next_drawing_id
@@ -1172,6 +1178,7 @@ def build_docx(
     source_dir: Path | None = None,
     metadata: dict[str, Any] | None = None,
     source_stem: str = "seo-blog-draft",
+    allow_placeholders: bool = False,
 ) -> Path:
     output = output.expanduser().resolve()
     if output.suffix.lower() != ".docx":
@@ -1184,6 +1191,7 @@ def build_docx(
         language,
         resolved_metadata,
         (source_dir or output.parent).expanduser().resolve(),
+        allow_placeholders,
     )
     builder.add_front_matter(document_title)
     populate(builder, markdown)
@@ -1217,6 +1225,11 @@ def main() -> int:
         type=Path,
         help="Metadata JSON; defaults to the matching <slug>.meta.json when present",
     )
+    parser.add_argument(
+        "--allow-placeholders",
+        action="store_true",
+        help="Allow neutral placeholder images for debugging only; final bundle validation rejects them",
+    )
     args = parser.parse_args()
 
     input_path = args.input.expanduser().resolve()
@@ -1225,15 +1238,19 @@ def main() -> int:
     if args.meta and not metadata_path.is_file():
         parser.error(f"metadata file not found: {metadata_path}")
     metadata = load_metadata(metadata_path) if metadata_path.is_file() else {}
-    destination = build_docx(
-        markdown,
-        args.output,
-        args.language,
-        args.title,
-        source_dir=input_path.parent,
-        metadata=metadata or None,
-        source_stem=input_path.stem,
-    )
+    try:
+        destination = build_docx(
+            markdown,
+            args.output,
+            args.language,
+            args.title,
+            source_dir=input_path.parent,
+            metadata=metadata or None,
+            source_stem=input_path.stem,
+            allow_placeholders=args.allow_placeholders,
+        )
+    except ValueError as exc:
+        parser.error(str(exc))
     print(f"Created {destination}")
     return 0
 
