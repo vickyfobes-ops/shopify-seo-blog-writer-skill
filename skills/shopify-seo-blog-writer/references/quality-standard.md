@@ -66,6 +66,15 @@ The Chinese review copy must preserve:
 
 Treat a mismatch between languages as a factual error.
 
+## Word Deliverables
+
+- Always produce separate English and Chinese DOCX files from the approved Markdown sources.
+- Treat DOCX as the primary human-facing result; supporting formats must not replace it.
+- Preserve bilingual parity across headings, facts, tables, CTA, FAQ, links, and source notes.
+- Use real Word structure and readable editorial styling instead of plain-text paragraphs with manual markers.
+- Match the approved V4 editorial-preview structure in `docx-format-standard.md`, including first-page SEO metadata, embedded images, local-draft header/footer, one-inch Letter margins, and localized Chinese labels.
+- Visually inspect rendered pages when rendering is available. Missing, corrupt, clipped, or materially incomplete Word files block delivery.
+
 ## Images
 
 Plan at least five images and preferably seven for a long guide:
