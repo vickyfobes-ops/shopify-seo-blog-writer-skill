@@ -30,6 +30,9 @@ Optional when requested:
 - Embed every Markdown image in a centered 6.15 x 2.5625-inch frame with alt text and a caption.
 - Missing, remote-only, unsupported, or placeholder images block final DOCX generation. The optional `--allow-placeholders` generator flag is for debugging only and does not satisfy bundle validation.
 - Use real Word heading styles, real lists, readable fixed-width tables, clickable links, header/footer parts, and page fields.
+- Keep the approved buying-guide master locked. The final DOCX must not become a
+  centered cover-page template, a design-inspiration deck, a planned-image
+  worksheet, or a source-only editorial wrapper.
 - Render and inspect every page when a DOCX renderer is available. Record the result in the review report.
 - If visual rendering is unavailable, run structural DOCX validation and report that visual QA was unavailable; the DOCX files are still mandatory.
 
