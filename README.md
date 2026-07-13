@@ -2,7 +2,7 @@
 
 Turn one topic into a complete, bilingual Shopify SEO blog bundle delivered in Word.
 
-This open-source Codex Skill researches current search intent, writes an English Shopify blog and Chinese review copy, creates polished English and Chinese DOCX files, produces SEO metadata and HTML, plans images, adds source links at the end, and validates the local bundle. It is designed for product education, buying guides, comparison posts, problem-solving articles, and custom-product planning content.
+This open-source Codex Skill researches current search intent, writes an English Shopify blog and Chinese review copy, generates original AI design visualizations, embeds the finished images in polished English and Chinese DOCX files, produces SEO metadata and HTML, adds source links at the end, and validates the local bundle. It is designed for product education, buying guides, comparison posts, problem-solving articles, and custom-product planning content.
 
 ## What It Produces
 
@@ -13,14 +13,15 @@ This open-source Codex Skill researches current search intent, writes an English
 - SEO title, meta description, URL handle, tags, and excerpt
 - Research notes and source links
 - Five-question FAQ with sources at the end
-- At least five image placements with alt text and prompts
+- At least five finished original AI design renders, with seven preferred for long guides
+- Local 1200 x 500 image assets embedded in both language versions, with prompts, alt text, provenance, and disclosure
 - Editorial review and publication blockers
 
 Shopify API calls and publishing are disabled by default.
 
 ## Install
 
-Python 3.10 or newer is required for the bundled generator and validator.
+Python 3.10 or newer is required for the bundled generator and validator. An available Codex image-generation capability is required for complete bundle creation; the Skill does not treat prompts or placeholders as finished images.
 
 Use the Codex skill installer:
 
@@ -65,7 +66,7 @@ The two primary files are always:
 No extra “export Word” request is needed. The Skill also retains Markdown, HTML, JSON, and review files as supporting material.
 
 Both Word files use the same approved review format: a local-draft header and
-footer, first-page SEO information table, real embedded 1200:500 images,
+footer, first-page SEO information table, real embedded 1200:500 original AI images,
 black-and-white editorial typography, readable comparison tables, and automatic
 page numbers. They are labeled as local previews and are not published to
 Shopify.
@@ -96,7 +97,9 @@ The bundled DOCX generator also uses only the Python standard library. It
 creates the approved V4 Word layout with real headings, lists, fixed-width
 tables, clickable links, embedded images, localized headers and footers, and
 automatic page numbering. The validator checks these format requirements in
-addition to content completeness.
+addition to content completeness. Missing images now stop DOCX generation by
+default. The optional `--allow-placeholders` flag is only for debugging, and
+placeholder-based bundles always fail final validation.
 
 ## License
 
