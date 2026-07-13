@@ -1,6 +1,6 @@
 ---
 name: shopify-seo-blog-writer
-description: Turn one product or content topic into a complete, bilingual, source-backed Shopify SEO blog bundle. Use when Codex needs to research search intent, select keywords, write an English publish-ready article and Chinese review copy, produce SEO metadata and HTML, plan images, add end-of-article sources, or audit a Shopify blog draft. Default to local files only; never call Shopify, create a Shopify draft, or publish unless the user explicitly requests that separate action.
+description: Turn one product or content topic into a complete, bilingual, source-backed Shopify SEO blog bundle with English and Chinese DOCX as the primary deliverables. Use when Codex needs to research search intent, select keywords, write an English publish-ready article and Chinese review copy, create polished Word documents, produce SEO metadata and HTML, plan images, add end-of-article sources, or audit a Shopify blog draft. Default to local files only; never call Shopify, create a Shopify draft, or publish unless the user explicitly requests that separate action.
 ---
 
 # Shopify SEO Blog Writer
@@ -18,6 +18,7 @@ Read these files before drafting:
 - `references/quality-standard.md` for the V5-derived editorial benchmark.
 - `references/research-and-seo.md` for keyword, intent, source, and originality rules.
 - `references/output-contract.md` for filenames, metadata, and validation requirements.
+- `references/docx-format-standard.md` for the approved V4 Word layout and visual-QA rules.
 
 Also read project-level `AGENTS.md`, brand guides, product facts, and approved examples when present. Treat historical blogs as style references only; never copy their wording.
 
@@ -25,12 +26,13 @@ Also read project-level `AGENTS.md`, brand guides, product facts, and approved e
 
 Create all of the following from one topic:
 
-1. English SEO blog source.
-2. Chinese review translation that mirrors the English meaning.
-3. English and Chinese HTML.
-4. Bilingual HTML review page.
-5. SEO metadata JSON with research, scores, sources, internal-link suggestions, and image plan.
-6. Review report with factual, SEO, originality, and publication checks.
+1. English Word document as the primary publication-review deliverable.
+2. Chinese Word document that mirrors the English meaning.
+3. English SEO blog source and Chinese review source.
+4. English and Chinese HTML.
+5. Bilingual HTML review page.
+6. SEO metadata JSON with research, scores, sources, internal-link suggestions, and image plan.
+7. Review report with factual, SEO, originality, DOCX, and publication checks.
 
 Use the existing `content/blogs/drafts/` directory when available. Otherwise create `blog-output/<slug>/`. Follow the exact names in `references/output-contract.md`.
 
@@ -98,6 +100,17 @@ Use the existing `content/blogs/drafts/` directory when available. Otherwise cre
 
 ### 8. Validate and Revise
 
+Build both required Word documents after the Markdown sources are final:
+
+```bash
+python <skill-dir>/scripts/build_docx.py --input <output-directory>/<slug>.md --meta <output-directory>/<slug>.meta.json --output <output-directory>/<slug>.en.docx --language en-US
+python <skill-dir>/scripts/build_docx.py --input <output-directory>/<slug>.zh-CN.md --meta <output-directory>/<slug>.meta.json --output <output-directory>/<slug>.zh-CN.docx --language zh-CN
+```
+
+Treat DOCX as the primary result shown to the user. Follow the V4 format reference exactly: local-draft header and footer, first-page SEO table, embedded 1200:500 images, neutral black-and-white typography, and one-inch Letter-page margins. Keep Markdown, HTML, JSON, and review files as supporting deliverables for editing and automation.
+
+When a document-generation and rendering tool is available, use it to render every DOCX page and inspect for clipping, broken tables, missing glyphs, image distortion, bad page breaks, and nearly empty spill pages. Revise and rerender until clean. When rendering is unavailable, use the bundled generator and structural validator, then state that visual QA was unavailable in the review report. Never skip either DOCX.
+
 Run:
 
 ```bash
@@ -105,8 +118,6 @@ python <skill-dir>/scripts/validate_bundle.py --dir <output-directory> --slug <s
 ```
 
 Fix every error before handing off. Review warnings and either fix them or explain them in the review report.
-
-If Word files are requested and a document-generation tool is available, generate English and Chinese `.docx`, render every page, and inspect for clipping, broken tables, missing glyphs, image distortion, bad page breaks, and nearly empty spill pages.
 
 ## Safety Boundary
 
