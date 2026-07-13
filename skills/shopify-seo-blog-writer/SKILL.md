@@ -23,6 +23,33 @@ Read these files before drafting:
 
 Also read project-level `AGENTS.md`, brand guides, product facts, and approved examples when present. Treat historical blogs as style references only; never copy their wording.
 
+## Locked DOCX Master
+
+Use exactly one Word visual system: the approved V4 commercial buying-guide
+editorial preview. Future topics may change the keyword, title, body copy,
+tables, formulas, images, and CTA, but they must not switch the document into a
+magazine cover, inspiration board, centered title page, trend report, or
+template-style showcase.
+
+Locked elements:
+
+- left-aligned first-page stack;
+- compact guide eyebrow;
+- large left-aligned title;
+- italic local-preview subtitle;
+- five-row SEO table on page one;
+- embedded hero image on page one;
+- black text only;
+- local-draft header and footer on every page;
+- real embedded images instead of planned-image cards or text placeholders.
+
+Variable elements:
+
+- topic, keyword, H2 structure, formulas, FAQs, image subjects, and localized
+  labels;
+- office versus non-office guide wording in the running header;
+- factual content, visual brief, and image prompts for the current topic only.
+
 ## Default Deliverable
 
 Create all of the following from one topic:
@@ -116,6 +143,13 @@ python <skill-dir>/scripts/build_docx.py --input <output-directory>/<slug>.zh-CN
 ```
 
 Treat DOCX as the primary result shown to the user. Follow the V4 format reference exactly: local-draft header and footer, first-page SEO table, real embedded 1200:500 original AI images, `#000000` text for every text role (including hyperlinks), and one-inch Letter-page margins. The generator fails on missing or unsupported images by default; `--allow-placeholders` is for debugging only and can never satisfy final bundle validation. Keep Markdown, HTML, JSON, review files, and generated image assets as supporting deliverables for editing and automation.
+
+Use `scripts/build_docx.py` as the required document generator for final
+deliverables. Do not replace it with an ad hoc DOCX writer, a generic report
+template, a centered cover-page template, or another style system. If the final
+Word file resembles a design-inspiration deck, planned-image worksheet, or
+source-only cover page, treat that as a failed build and rebuild it in the V4
+master.
 
 When a document-generation and rendering tool is available, use it to render every DOCX page and inspect for clipping, broken tables, missing glyphs, image distortion, bad page breaks, and nearly empty spill pages. Revise and rerender until clean. When rendering is unavailable, use the bundled generator and structural validator, then state that visual QA was unavailable in the review report. Never skip either DOCX.
 
