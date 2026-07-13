@@ -6,6 +6,8 @@ Use `content/blogs/drafts/` when that project directory exists. Otherwise use `b
 
 Create these files:
 
+- `<slug>.en.docx` - primary English Word deliverable.
+- `<slug>.zh-CN.docx` - primary Chinese Word deliverable.
 - `<slug>.md` - English editable source; local revisions may use a `-vN` suffix.
 - `<slug>.zh-CN.md` - Chinese review source.
 - `<slug>.html` - English Shopify-compatible body preview.
@@ -16,9 +18,19 @@ Create these files:
 
 Optional when requested:
 
-- `<slug>.en.docx`
-- `<slug>.zh-CN.docx`
 - `<slug>-image-preview.jpg`
+
+## DOCX Contract
+
+- Treat both Word files as required, user-facing deliverables. Never omit them silently.
+- Build each DOCX from its matching Markdown source after factual and bilingual review.
+- Preserve the complete heading order, prose, numbers, units, tables, lists, CTA, FAQ, links, and source notes.
+- Apply `docx-format-standard.md`: US Letter portrait, exact one-inch margins, V4 first-page front matter, neutral black-and-white typography, localized local-draft labels, and automatic page numbers.
+- Embed every available Markdown image in a centered 6.15 x 2.5625-inch frame with alt text and a caption.
+- Show planned-but-unavailable images as same-size, clearly labeled placeholders. Never imply that a placeholder is a finished product or customer project.
+- Use real Word heading styles, real lists, readable fixed-width tables, clickable links, header/footer parts, and page fields.
+- Render and inspect every page when a DOCX renderer is available. Record the result in the review report.
+- If visual rendering is unavailable, run structural DOCX validation and report that visual QA was unavailable; the DOCX files are still mandatory.
 
 ## Markdown Contract
 
@@ -100,6 +112,7 @@ When a local filename uses `-vN`, keep `seo.urlHandle` canonical without that ve
 The review must report:
 
 - generated files;
+- English and Chinese DOCX generation and visual-QA status;
 - SEO title and meta-description lengths;
 - word, heading, FAQ, image, and source counts;
 - originality and factual checks;
