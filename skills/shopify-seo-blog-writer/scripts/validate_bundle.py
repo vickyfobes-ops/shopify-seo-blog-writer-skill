@@ -37,6 +37,12 @@ DOCX_REQUIRED_PARTS = {
 PLACEHOLDER_SHA256 = "f0417bb27a7cdfbc6e15f5f63b1a8d0419c1d9fa2cbafe697e8898c8095ef945"
 IMAGE_PATTERN = re.compile(r"^!\[([^\]]*)\]\((.+)\)\s*$", flags=re.MULTILINE)
 BLACK_TEXT_COLOR = "000000"
+FORBIDDEN_DOCX_PHRASES = (
+    "SHOPIFY SEO EDITORIAL DRAFT",
+    "ENGLISH PUBLISH SOURCE",
+    "DESIGN INSPIRATION",
+    "PLANNED IMAGE",
+)
 
 
 def read(path: Path) -> str:
@@ -370,6 +376,12 @@ def validate_docx(
         return
     if "Image pending" in document_text or "图片待补" in document_text:
         errors.append(f"{label}: contains an image placeholder instead of a finished asset")
+    for forbidden in FORBIDDEN_DOCX_PHRASES:
+        if forbidden in document_text:
+            errors.append(
+                f"{label}: contains forbidden template text {forbidden!r}; rebuild with the locked V4 buying-guide master"
+            )
+            break
 
     # The approved V4 preview uses black text only. Inspect text-color elements
     # in all text-bearing DOCX parts so later edits cannot introduce theme blue.
@@ -416,6 +428,12 @@ def validate_docx(
             errors.append(f"{label}: English footer must state not published")
     if "PAGE" not in footer_fields:
         errors.append(f"{label}: footer must contain an automatic PAGE field")
+    for forbidden in FORBIDDEN_DOCX_PHRASES:
+        if forbidden in header_text or forbidden in footer_text:
+            errors.append(
+                f"{label}: header/footer contains forbidden template text {forbidden!r}"
+            )
+            break
 
     section = document.find(".//w:sectPr", namespace)
     if section is None:
