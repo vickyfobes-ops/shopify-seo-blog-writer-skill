@@ -77,7 +77,7 @@ Treat a mismatch between languages as a factual error.
 
 ## Images
 
-Plan at least five images and preferably seven for a long guide:
+Generate at least five original AI design visualizations and preferably seven for a long guide:
 
 1. hero showing the full product or use case;
 2. scale, dimensions, or seating context;
@@ -87,4 +87,6 @@ Plan at least five images and preferably seven for a long guide:
 6. installation, support, or access context when relevant;
 7. closing image aligned with the CTA.
 
-Every plan item requires a purpose, insertion point, filename, alt text, aspect ratio, and prompt. Generated images are illustrative and must not be described as customer projects.
+An image plan without finished local assets is incomplete. Every selected image must be visually reviewed, center-cropped without stretching, saved as a 1200 x 500 PNG or JPEG inside the output bundle, referenced by both languages, and embedded in both DOCX files. Every metadata item requires a purpose, insertion point, filename, local path, alt text, aspect ratio, full prompt, original-AI source type, and generated status.
+
+Reject placeholders, duplicated assets, stock substitutions, logos, watermarks, text artifacts, malformed products, impossible geometry, or unsupported visual claims. Generated images are illustrative design concepts and must not be described as customer projects, completed products, technical drawings, certifications, or performance evidence.
