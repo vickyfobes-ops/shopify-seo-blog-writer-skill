@@ -66,13 +66,12 @@ values and table structure.
 
 ## Images
 
-- Embed every Markdown image; do not replace available images with text.
+- Embed every Markdown image after the required original AI asset has been generated and saved locally.
 - Use a centered 6.15 x 2.5625-inch frame, matching the preferred 1200:500
   source ratio.
 - Preserve descriptive alt text in the Word drawing properties.
 - Put a centered 9-point italic caption immediately below each image.
-- If an image is unavailable, embed a same-size neutral placeholder and prefix
-  the caption with `Image pending` or `图片待补`.
+- Do not deliver neutral placeholders. Missing, unsupported, remote-only, or unreviewed images block final Word generation.
 - Keep each image with its caption and inspect for distortion after rendering.
 
 ## Visual QA
