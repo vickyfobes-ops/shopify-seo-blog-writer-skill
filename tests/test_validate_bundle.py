@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import importlib.util
+import binascii
 import json
+import struct
 import tempfile
 import unittest
 import zipfile
+import zlib
 from pathlib import Path
 
 
@@ -21,6 +24,47 @@ BUILD_SPEC = importlib.util.spec_from_file_location("build_docx", BUILD_SCRIPT)
 assert BUILD_SPEC and BUILD_SPEC.loader
 BUILD_MODULE = importlib.util.module_from_spec(BUILD_SPEC)
 BUILD_SPEC.loader.exec_module(BUILD_MODULE)
+
+
+def sample_render_png(width: int = 1200, height: int = 500) -> bytes:
+    def chunk(kind: bytes, payload: bytes) -> bytes:
+        return (
+            struct.pack(">I", len(payload))
+            + kind
+            + payload
+            + struct.pack(">I", binascii.crc32(kind + payload) & 0xFFFFFFFF)
+        )
+
+    rows = []
+    for y in range(height):
+        row = bytearray()
+        for x in range(width):
+            row.extend(((x * 7 + y) % 256, (x + y * 3) % 256, (x * 2 + y * 5) % 256))
+        rows.append(b"\x00" + bytes(row))
+    ihdr = struct.pack(">IIBBBBB", width, height, 8, 2, 0, 0, 0)
+    return (
+        b"\x89PNG\r\n\x1a\n"
+        + chunk(b"IHDR", ihdr)
+        + chunk(b"IDAT", zlib.compress(b"".join(rows), level=9))
+        + chunk(b"IEND", b"")
+    )
+
+
+def generated_image_plan(count: int = 5) -> list[dict[str, str]]:
+    return [
+        {
+            "imagePurpose": f"Support section {index}",
+            "imagePrompt": f"Original product render {index}",
+            "fileName": f"image-{index}.png",
+            "localPath": f"images/image-{index}.png",
+            "altText": f"Original AI design render {index}",
+            "insertAfterHeading": f"Section {index}",
+            "imageRatio": "1200:500",
+            "sourceType": "ai-generated-original",
+            "status": "generated",
+        }
+        for index in range(1, count + 1)
+    ]
 
 
 class ValidateBundleTests(unittest.TestCase):
@@ -49,7 +93,7 @@ Choose a table after checking room dimensions and daily seating needs.
             directory = Path(temporary_directory)
             output = directory / "guide.en.docx"
             image = directory / "conference-table.png"
-            image.write_bytes(BUILD_MODULE.placeholder_png())
+            image.write_bytes(sample_render_png())
             metadata = {
                 "keyword": "epoxy conference table guide",
                 "searchIntent": "commercial investigation / office planning",
@@ -95,8 +139,15 @@ Choose a table after checking room dimensions and daily seating needs.
 每天每人预留 30 英寸有效桌边。
 """
         with tempfile.TemporaryDirectory() as temporary_directory:
-            output = Path(temporary_directory) / "guide.zh-CN.docx"
-            BUILD_MODULE.build_docx(markdown, output, "zh-CN")
+            directory = Path(temporary_directory)
+            output = directory / "guide.zh-CN.docx"
+            (directory / "missing.png").write_bytes(sample_render_png())
+            BUILD_MODULE.build_docx(
+                markdown,
+                output,
+                "zh-CN",
+                source_dir=directory,
+            )
             errors: list[str] = []
             warnings: list[str] = []
             MODULE.validate_docx("Chinese DOCX", output, markdown, errors, warnings)
@@ -110,7 +161,25 @@ Choose a table after checking room dimensions and daily seating needs.
                 self.assertIn("SHOPIFY BLOG 草稿", header_xml)
                 self.assertIn("未发布", footer_xml)
                 self.assertIn(BUILD_MODULE.CJK_FONT, styles_xml)
-                self.assertIn("图片待补", document_xml)
+                self.assertNotIn("图片待补", document_xml)
+
+    def test_docx_builder_rejects_missing_images_by_default(self) -> None:
+        markdown = "# Guide\n\n![Original AI design render](missing.png)\n"
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            output = Path(temporary_directory) / "guide.en.docx"
+            with self.assertRaisesRegex(ValueError, "image is missing or unreadable"):
+                BUILD_MODULE.build_docx(markdown, output, "en-US")
+
+    def test_image_asset_validator_rejects_neutral_placeholder(self) -> None:
+        markdown = "# Guide\n\n![Original AI design render](placeholder.png)\n"
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            directory = Path(temporary_directory)
+            source = directory / "guide.md"
+            source.write_text(markdown, encoding="utf-8")
+            (directory / "placeholder.png").write_bytes(BUILD_MODULE.placeholder_png())
+            errors: list[str] = []
+            MODULE.validate_image_assets("English Markdown", source, markdown, errors)
+            self.assertTrue(any("neutral placeholder" in error for error in errors))
 
     def test_docx_validator_rejects_plain_text_with_docx_extension(self) -> None:
         with tempfile.TemporaryDirectory() as temporary_directory:
@@ -153,7 +222,18 @@ Choose a table after checking room dimensions and daily seating needs.
                 "metaDescription": "Use this epoxy table guide to compare practical sizes, materials, room fit, maintenance, delivery needs, and buying questions before ordering.",
                 "urlHandle": slug,
             },
-            "imagePlan": [{} for _ in range(5)],
+            "imageGeneration": {
+                "required": True,
+                "sourceType": "ai-generated-original",
+                "generatedCount": 5,
+            },
+            "visualBrief": {
+                "topic": "Epoxy table guide",
+                "audience": "buyers",
+                "visualStyle": "photorealistic product render",
+                "sectionRationale": "One distinct original render for each buying decision.",
+            },
+            "imagePlan": generated_image_plan(),
             "selfReview": {
                 "seoScoreType": "Internal on-page readiness score, not a ranking guarantee"
             },
@@ -180,7 +260,18 @@ Choose a table after checking room dimensions and daily seating needs.
                 "metaDescription": "Use this epoxy table guide to compare practical sizes, materials, room fit, maintenance, delivery needs, and buying questions before ordering.",
                 "urlHandle": handle,
             },
-            "imagePlan": [{} for _ in range(5)],
+            "imageGeneration": {
+                "required": True,
+                "sourceType": "ai-generated-original",
+                "generatedCount": 5,
+            },
+            "visualBrief": {
+                "topic": "Epoxy table guide",
+                "audience": "buyers",
+                "visualStyle": "photorealistic product render",
+                "sectionRationale": "One distinct original render for each buying decision.",
+            },
+            "imagePlan": generated_image_plan(),
             "selfReview": {
                 "seoScoreType": "Internal on-page readiness score, not a ranking guarantee"
             },
