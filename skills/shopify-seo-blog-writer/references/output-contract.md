@@ -15,6 +15,7 @@ Create these files:
 - `<slug>.bilingual.html` - side-by-side or tabbed review page.
 - `<slug>.meta.json` - research, SEO, sources, links, image plan, and safety status.
 - `<slug>.review.md` - self-review and blockers.
+- `images/<slug>/` - at least five finished original AI design renders used by both languages; prefer seven for long guides.
 
 Optional when requested:
 
@@ -26,8 +27,8 @@ Optional when requested:
 - Build each DOCX from its matching Markdown source after factual and bilingual review.
 - Preserve the complete heading order, prose, numbers, units, tables, lists, CTA, FAQ, links, and source notes.
 - Apply `docx-format-standard.md`: US Letter portrait, exact one-inch margins, V4 first-page front matter, neutral black-and-white typography, localized local-draft labels, and automatic page numbers.
-- Embed every available Markdown image in a centered 6.15 x 2.5625-inch frame with alt text and a caption.
-- Show planned-but-unavailable images as same-size, clearly labeled placeholders. Never imply that a placeholder is a finished product or customer project.
+- Embed every Markdown image in a centered 6.15 x 2.5625-inch frame with alt text and a caption.
+- Missing, remote-only, unsupported, or placeholder images block final DOCX generation. The optional `--allow-placeholders` generator flag is for debugging only and does not satisfy bundle validation.
 - Use real Word heading styles, real lists, readable fixed-width tables, clickable links, header/footer parts, and page fields.
 - Render and inspect every page when a DOCX renderer is available. Record the result in the review report.
 - If visual rendering is unavailable, run structural DOCX validation and report that visual QA was unavailable; the DOCX files are still mandatory.
@@ -40,7 +41,7 @@ Optional when requested:
 - Keep `## Frequently Asked Questions` or `## 常见问题` as the final H2.
 - Use exactly five H3 FAQ questions after the final H2.
 - Put at least three external research links in the fifth FAQ answer.
-- Include at least five Markdown image placements.
+- Include at least five distinct local Markdown image placements, each backed by a finished 1200 x 500 PNG or JPEG. English and Chinese must use the same assets in the same order.
 - Put the CTA immediately before FAQ.
 
 ## Metadata Contract
@@ -84,7 +85,31 @@ Use valid UTF-8 JSON. Include at least:
     "shopifyTags": []
   },
   "internalLinkSuggestions": [],
-  "imagePlan": [],
+  "imageGeneration": {
+    "required": true,
+    "sourceType": "ai-generated-original",
+    "generatedCount": 5,
+    "disclosure": "Original AI design visualizations; not customer-project photography."
+  },
+  "visualBrief": {
+    "topic": "Current article topic",
+    "audience": "Reader and buying stage",
+    "visualStyle": "Topic-appropriate visual direction",
+    "sectionRationale": "Why each visual role supports this topic's decisions"
+  },
+  "imagePlan": [
+    {
+      "imagePurpose": "What this image helps the reader inspect",
+      "imagePrompt": "Full generation prompt",
+      "fileName": "descriptive-image-name.png",
+      "localPath": "images/<slug>/descriptive-image-name.png",
+      "altText": "Specific descriptive alt text",
+      "insertAfterHeading": "H1 or section heading",
+      "imageRatio": "1200:500",
+      "sourceType": "ai-generated-original",
+      "status": "generated"
+    }
+  ],
   "selfReview": {
     "aiToneScore": 0,
     "originalityRiskScore": 0,
@@ -113,6 +138,7 @@ The review must report:
 
 - generated files;
 - English and Chinese DOCX generation and visual-QA status;
+- original AI image count, local paths, generation status, visual-QA status, and disclosure;
 - SEO title and meta-description lengths;
 - word, heading, FAQ, image, and source counts;
 - originality and factual checks;
