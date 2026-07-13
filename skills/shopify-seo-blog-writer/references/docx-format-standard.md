@@ -54,6 +54,9 @@ values and table structure.
 - Use real Word bullets, numbering, headings, tables, hyperlinks, and fields.
 - Keep the presentation neutral and editorial: black text, white pages, thin
   gray rules, and no decorative color theme.
+- Text color is locked to `#000000` for body text, headings, metadata, captions,
+  header, footer, and hyperlinks. Underlines are allowed for links, but blue,
+  gray, automatic, theme-derived, or accent-colored text is not.
 
 ## Tables
 
@@ -79,4 +82,5 @@ values and table structure.
 Render both Word files and inspect every page at full resolution. Delivery is
 blocked by clipped text, overlapping elements, broken tables, missing glyphs,
 distorted images, detached captions, nearly empty spill pages, or a missing
-local-preview safety label.
+local-preview safety label. It is also blocked when any text uses a color other
+than `#000000` or uses a theme-derived text color.
