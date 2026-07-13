@@ -6,6 +6,28 @@ Use this standard for every English and Chinese Word deliverable. It distills
 the approved V4 document structure and visual system without distributing any
 reference article copy or image assets.
 
+## Master Lock
+
+This is a single locked editorial master, not a family of optional templates.
+Every topic reuses the same page architecture and only swaps the article
+content, SEO metadata, factual tables, and image subjects.
+
+Allowed to change by topic:
+
+- title text;
+- eyebrow wording within the same buying-guide/planning-guide voice;
+- SEO table values;
+- article body, formulas, CTA, FAQ, and source links;
+- generated image subjects and captions.
+
+Not allowed to change by topic:
+
+- centered cover-page layout;
+- design-inspiration or trend-report framing;
+- decorative accent colors;
+- planned-image cards, image placeholders, or source-only title pages;
+- replacing the first-page SEO table with freeform metadata text.
+
 ## Page And Safety Labels
 
 - Use US Letter portrait pages with one-inch margins on all sides.
@@ -29,6 +51,9 @@ Use this order:
 5. Embedded hero image.
 6. Centered italic image caption.
 7. Article opening.
+
+All first-page text remains left aligned except the image caption. Do not use a
+centered title page, centered subtitle stack, or oversized cover-page whitespace.
 
 The metadata rows are:
 
@@ -57,6 +82,8 @@ values and table structure.
 - Text color is locked to `#000000` for body text, headings, metadata, captions,
   header, footer, and hyperlinks. Underlines are allowed for links, but blue,
   gray, automatic, theme-derived, or accent-colored text is not.
+- Treat any blue, teal, gold, or brand-accent heading treatment as a failed
+  build for this master.
 
 ## Tables
 
@@ -76,6 +103,8 @@ values and table structure.
 - Put a centered 9-point italic caption immediately below each image.
 - Do not deliver neutral placeholders. Missing, unsupported, remote-only, or unreviewed images block final Word generation.
 - Keep each image with its caption and inspect for distortion after rendering.
+- Do not replace embedded images with text cards such as `PLANNED IMAGE 01`,
+  filename callouts, or prompt summaries.
 
 ## Visual QA
 
@@ -84,3 +113,7 @@ blocked by clipped text, overlapping elements, broken tables, missing glyphs,
 distorted images, detached captions, nearly empty spill pages, or a missing
 local-preview safety label. It is also blocked when any text uses a color other
 than `#000000` or uses a theme-derived text color.
+
+Delivery is also blocked when the document contains magazine-style cover terms
+or worksheet labels such as `DESIGN INSPIRATION`, `ENGLISH PUBLISH SOURCE`,
+`SHOPIFY SEO EDITORIAL DRAFT`, or `PLANNED IMAGE`.
