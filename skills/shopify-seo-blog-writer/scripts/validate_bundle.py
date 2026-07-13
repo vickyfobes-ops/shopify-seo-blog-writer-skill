@@ -36,6 +36,7 @@ DOCX_REQUIRED_PARTS = {
 }
 PLACEHOLDER_SHA256 = "f0417bb27a7cdfbc6e15f5f63b1a8d0419c1d9fa2cbafe697e8898c8095ef945"
 IMAGE_PATTERN = re.compile(r"^!\[([^\]]*)\]\((.+)\)\s*$", flags=re.MULTILINE)
+BLACK_TEXT_COLOR = "000000"
 
 
 def read(path: Path) -> str:
@@ -369,6 +370,21 @@ def validate_docx(
         return
     if "Image pending" in document_text or "图片待补" in document_text:
         errors.append(f"{label}: contains an image placeholder instead of a finished asset")
+
+    # The approved V4 preview uses black text only. Inspect text-color elements
+    # in all text-bearing DOCX parts so later edits cannot introduce theme blue.
+    for part_name, root in (("document", document), ("styles", styles), ("header", header), ("footer", footer)):
+        for color in root.findall(".//w:color", namespace):
+            value = str(color.get(f"{{{WORD_NAMESPACE}}}val", "")).upper()
+            uses_theme = any(
+                color.get(f"{{{WORD_NAMESPACE}}}{attribute}")
+                for attribute in ("themeColor", "themeTint", "themeShade")
+            )
+            if value != BLACK_TEXT_COLOR or uses_theme:
+                errors.append(
+                    f"{label}: {part_name} text color must be #000000 without a theme color"
+                )
+                break
 
     title_styles = document.findall(".//w:pStyle[@w:val='Title']", namespace)
     heading_styles = document.findall(".//w:pStyle[@w:val='Heading1']", namespace)
