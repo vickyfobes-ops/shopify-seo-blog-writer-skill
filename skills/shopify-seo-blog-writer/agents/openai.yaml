@@ -1,4 +1,4 @@
 interface:
   display_name: "Shopify SEO Blog Writer"
-  short_description: "Generate bilingual, source-backed Shopify SEO blogs"
-  default_prompt: "Use $shopify-seo-blog-writer to turn my topic into a complete English Shopify SEO blog and Chinese review copy."
+  short_description: "Create bilingual Shopify SEO blogs in Word"
+  default_prompt: "Use $shopify-seo-blog-writer to turn my topic into a complete Shopify SEO blog with English and Chinese DOCX files."
