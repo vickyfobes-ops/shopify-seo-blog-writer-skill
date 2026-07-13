@@ -1,6 +1,6 @@
 ---
 name: shopify-seo-blog-writer
-description: Turn one product or content topic into a complete, bilingual, source-backed Shopify SEO blog bundle with English and Chinese DOCX as the primary deliverables. Use when Codex needs to research search intent, select keywords, write an English publish-ready article and Chinese review copy, create polished Word documents, produce SEO metadata and HTML, plan images, add end-of-article sources, or audit a Shopify blog draft. Default to local files only; never call Shopify, create a Shopify draft, or publish unless the user explicitly requests that separate action.
+description: Turn one product or content topic into a complete, bilingual, source-backed Shopify SEO blog bundle with original AI design renders embedded in English and Chinese DOCX. Use when Codex needs to research search intent, select keywords, write an English publish-ready article and Chinese review copy, generate topic-specific original images, create polished Word documents, produce SEO metadata and HTML, add end-of-article sources, or audit a Shopify blog draft. Default to local files only; never call Shopify, create a Shopify draft, upload images, or publish unless the user explicitly requests that separate action.
 ---
 
 # Shopify SEO Blog Writer
@@ -19,6 +19,7 @@ Read these files before drafting:
 - `references/research-and-seo.md` for keyword, intent, source, and originality rules.
 - `references/output-contract.md` for filenames, metadata, and validation requirements.
 - `references/docx-format-standard.md` for the approved V4 Word layout and visual-QA rules.
+- `references/ai-image-workflow.md` for mandatory original-image generation, disclosure, and asset checks.
 
 Also read project-level `AGENTS.md`, brand guides, product facts, and approved examples when present. Treat historical blogs as style references only; never copy their wording.
 
@@ -31,8 +32,9 @@ Create all of the following from one topic:
 3. English SEO blog source and Chinese review source.
 4. English and Chinese HTML.
 5. Bilingual HTML review page.
-6. SEO metadata JSON with research, scores, sources, internal-link suggestions, and image plan.
-7. Review report with factual, SEO, originality, DOCX, and publication checks.
+6. At least five original AI design renders saved as local 1200 x 500 image assets; prefer seven for long guides.
+7. SEO metadata JSON with research, scores, sources, internal-link suggestions, and image-generation provenance.
+8. Review report with factual, SEO, originality, image, DOCX, and publication checks.
 
 Use the existing `content/blogs/drafts/` directory when available. Otherwise create `blog-output/<slug>/`. Follow the exact names in `references/output-contract.md`.
 
@@ -82,12 +84,17 @@ Use the existing `content/blogs/drafts/` directory when available. Otherwise cre
 - Preserve the same unit system and decision hierarchy.
 - Do not add claims that are absent from the English source.
 
-### 6. Plan Images
+### 6. Generate and Embed Original AI Images
 
-- Plan at least five images; prefer seven for a long guide.
-- Include purpose, insertion point, filename, alt text, aspect ratio, and generation or photography prompt.
-- Use descriptive, topic-specific alt text. Do not stuff the main keyword into every image.
-- Do not claim generated images show completed customer projects.
+- Follow `references/ai-image-workflow.md`; an image plan alone is not a deliverable.
+- Derive a new visual brief from the current topic, keyword, search intent, product facts, and article sections. Do not reuse a fixed image set, generic prompt set, or another topic's filenames.
+- Generate at least five distinct images and prefer seven for a long guide. Use the built-in image-generation capability when available, with one focused prompt per asset.
+- Save every selected result inside `<output-directory>/images/<slug>/` and normalize it to exactly 1200 x 500 pixels without stretching. Never leave a referenced asset only in a temporary or model-output directory.
+- Insert the same local image files in the same order in English Markdown, Chinese Markdown, English HTML, and Chinese HTML. Localize the alt text without changing its factual meaning.
+- Record purpose, insertion point, filename, local path, alt text, 1200:500 ratio, full prompt, `sourceType: ai-generated-original`, and `status: generated` in metadata.
+- Inspect every image for malformed products, text artifacts, logos, watermarks, impossible geometry, misleading measurements, and visual duplication.
+- Label the assets as original AI design visualizations. Never describe them as completed products, customer projects, engineering drawings, accessibility certifications, or proof of real-world performance.
+- Do not substitute neutral placeholders. If image generation is unavailable or any required asset fails review, report a blocker and do not present the DOCX bundle as complete.
 
 ### 7. Create Metadata and Review
 
@@ -100,14 +107,14 @@ Use the existing `content/blogs/drafts/` directory when available. Otherwise cre
 
 ### 8. Validate and Revise
 
-Build both required Word documents after the Markdown sources are final:
+Build both required Word documents only after the Markdown sources and all local images are final:
 
 ```bash
 python <skill-dir>/scripts/build_docx.py --input <output-directory>/<slug>.md --meta <output-directory>/<slug>.meta.json --output <output-directory>/<slug>.en.docx --language en-US
 python <skill-dir>/scripts/build_docx.py --input <output-directory>/<slug>.zh-CN.md --meta <output-directory>/<slug>.meta.json --output <output-directory>/<slug>.zh-CN.docx --language zh-CN
 ```
 
-Treat DOCX as the primary result shown to the user. Follow the V4 format reference exactly: local-draft header and footer, first-page SEO table, embedded 1200:500 images, neutral black-and-white typography, and one-inch Letter-page margins. Keep Markdown, HTML, JSON, and review files as supporting deliverables for editing and automation.
+Treat DOCX as the primary result shown to the user. Follow the V4 format reference exactly: local-draft header and footer, first-page SEO table, real embedded 1200:500 original AI images, neutral black-and-white typography, and one-inch Letter-page margins. The generator fails on missing or unsupported images by default; `--allow-placeholders` is for debugging only and can never satisfy final bundle validation. Keep Markdown, HTML, JSON, review files, and generated image assets as supporting deliverables for editing and automation.
 
 When a document-generation and rendering tool is available, use it to render every DOCX page and inspect for clipping, broken tables, missing glyphs, image distortion, bad page breaks, and nearly empty spill pages. Revise and rerender until clean. When rendering is unavailable, use the bundled generator and structural validator, then state that visual QA was unavailable in the review report. Never skip either DOCX.
 
