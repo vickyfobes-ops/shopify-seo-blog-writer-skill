@@ -7,14 +7,30 @@ import argparse
 import json
 import re
 import sys
+import zipfile
 from pathlib import Path
 from typing import Any
+from xml.etree import ElementTree as ET
 
 
 FAQ_HEADINGS = {
     "Frequently Asked Questions",
     "FAQ",
     "常见问题",
+}
+
+WORD_NAMESPACE = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+WORD_DRAWING_NAMESPACE = (
+    "http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"
+)
+DOCX_REQUIRED_PARTS = {
+    "[Content_Types].xml",
+    "_rels/.rels",
+    "word/document.xml",
+    "word/styles.xml",
+    "word/header1.xml",
+    "word/footer1.xml",
+    "word/_rels/document.xml.rels",
 }
 
 
@@ -136,6 +152,190 @@ def validate_html(label: str, text: str, errors: list[str]) -> None:
         errors.append(f"{label}: final HTML H2 must be FAQ")
 
 
+def normalized_content(text: str) -> str:
+    text = re.sub(r"<!--.*?-->", "", text, flags=re.DOTALL)
+    text = re.sub(r"!\[([^\]]*)\]\([^\)]+\)", r"\1", text)
+    text = re.sub(r"\[([^\]]+)\]\([^\)]+\)", r"\1", text)
+    text = re.sub(r"<[^>]+>", "", text)
+    return "".join(re.findall(r"[A-Za-z0-9\u3400-\u9fff]+", text))
+
+
+def validate_docx(
+    label: str,
+    path: Path,
+    source_markdown: str,
+    errors: list[str],
+    warnings: list[str],
+) -> None:
+    if not zipfile.is_zipfile(path):
+        errors.append(f"{label}: not a valid DOCX/ZIP package")
+        return
+
+    try:
+        with zipfile.ZipFile(path) as archive:
+            missing_parts = sorted(DOCX_REQUIRED_PARTS.difference(archive.namelist()))
+            if missing_parts:
+                errors.append(f"{label}: missing DOCX package parts {missing_parts}")
+                return
+            damaged_member = archive.testzip()
+            if damaged_member:
+                errors.append(f"{label}: corrupt ZIP member {damaged_member!r}")
+                return
+            document = ET.fromstring(archive.read("word/document.xml"))
+            header = ET.fromstring(archive.read("word/header1.xml"))
+            footer = ET.fromstring(archive.read("word/footer1.xml"))
+            styles_payload = archive.read("word/styles.xml")
+            styles = ET.fromstring(styles_payload)
+            media_count = len(
+                [
+                    name
+                    for name in archive.namelist()
+                    if name.startswith("word/media/") and not name.endswith("/")
+                ]
+            )
+    except (OSError, zipfile.BadZipFile, ET.ParseError) as exc:
+        errors.append(f"{label}: cannot read DOCX structure: {exc}")
+        return
+
+    namespace = {
+        "w": WORD_NAMESPACE,
+        "wp": WORD_DRAWING_NAMESPACE,
+    }
+    document_text = "".join(node.text or "" for node in document.findall(".//w:t", namespace))
+    if not document_text.strip():
+        errors.append(f"{label}: document.xml contains no readable text")
+        return
+
+    title_styles = document.findall(".//w:pStyle[@w:val='Title']", namespace)
+    heading_styles = document.findall(".//w:pStyle[@w:val='Heading1']", namespace)
+    if not title_styles and not heading_styles:
+        errors.append(f"{label}: expected a real Word Title or Heading 1 style")
+
+    if document.find(".//w:headerReference", namespace) is None:
+        errors.append(f"{label}: missing section header reference")
+    if document.find(".//w:footerReference", namespace) is None:
+        errors.append(f"{label}: missing section footer reference")
+
+    header_text = "".join(node.text or "" for node in header.findall(".//w:t", namespace))
+    footer_text = "".join(node.text or "" for node in footer.findall(".//w:t", namespace))
+    footer_fields = "".join(
+        node.text or "" for node in footer.findall(".//w:instrText", namespace)
+    )
+    chinese = "chinese" in label.lower() or "zh-cn" in label.lower()
+    if "SHOPIFY BLOG" not in header_text:
+        errors.append(f"{label}: header must identify the local Shopify blog draft")
+    if chinese:
+        if "草稿" not in header_text:
+            errors.append(f"{label}: Chinese header must include 草稿")
+        if "未发布" not in footer_text:
+            errors.append(f"{label}: Chinese footer must state 未发布")
+    else:
+        if "DRAFT" not in header_text:
+            errors.append(f"{label}: English header must include DRAFT")
+        if "not published" not in footer_text.lower():
+            errors.append(f"{label}: English footer must state not published")
+    if "PAGE" not in footer_fields:
+        errors.append(f"{label}: footer must contain an automatic PAGE field")
+
+    section = document.find(".//w:sectPr", namespace)
+    if section is None:
+        errors.append(f"{label}: missing section page setup")
+    else:
+        page_size = section.find("w:pgSz", namespace)
+        expected_size = {"w": "12240", "h": "15840"}
+        if page_size is None or any(
+            page_size.get(f"{{{WORD_NAMESPACE}}}{key}") != value
+            for key, value in expected_size.items()
+        ):
+            errors.append(f"{label}: page size must be US Letter portrait")
+        margins = section.find("w:pgMar", namespace)
+        expected_margins = {
+            "top": "1440",
+            "right": "1440",
+            "bottom": "1440",
+            "left": "1440",
+        }
+        if margins is None or any(
+            margins.get(f"{{{WORD_NAMESPACE}}}{key}") != value
+            for key, value in expected_margins.items()
+        ):
+            errors.append(f"{label}: page margins must be one inch on every side")
+
+    tables = document.findall(".//w:tbl", namespace)
+    if not tables:
+        errors.append(f"{label}: missing first-page SEO metadata table")
+    else:
+        metadata_rows = tables[0].findall("w:tr", namespace)
+        first_row_cells = (
+            metadata_rows[0].findall("w:tc", namespace) if metadata_rows else []
+        )
+        if len(metadata_rows) < 5 or len(first_row_cells) != 2:
+            errors.append(
+                f"{label}: first table must be the five-row, two-column SEO metadata table"
+            )
+
+    expected_images = markdown_metrics(source_markdown)["images"]
+    drawings = document.findall(".//w:drawing", namespace)
+    if len(drawings) != expected_images:
+        errors.append(
+            f"{label}: expected {expected_images} embedded image(s), found {len(drawings)}"
+        )
+    if media_count < len(drawings):
+        errors.append(
+            f"{label}: DOCX media package has {media_count} file(s) for {len(drawings)} drawing(s)"
+        )
+    image_properties = document.findall(".//wp:docPr", namespace)
+    if len(image_properties) != len(drawings) or any(
+        not str(item.get("descr", "")).strip() for item in image_properties
+    ):
+        errors.append(f"{label}: every embedded image must retain descriptive alt text")
+    for extent in document.findall(".//wp:extent", namespace):
+        if (
+            extent.get("cx") != "5623560"
+            or extent.get("cy") != "2343150"
+        ):
+            errors.append(
+                f"{label}: every image must use the V4 6.15 x 2.5625-inch frame"
+            )
+            break
+
+    east_asia_fonts = {
+        str(font.get(f"{{{WORD_NAMESPACE}}}eastAsia", "")).strip()
+        for font in styles.findall(".//w:rFonts", namespace)
+    }
+    east_asia_fonts.discard("")
+    if not east_asia_fonts or east_asia_fonts.issubset({"Calibri", "Arial", "Aptos"}):
+        errors.append(f"{label}: styles must include a dedicated CJK-capable font")
+
+    source_content = normalized_content(source_markdown)
+    docx_content = normalized_content(document_text)
+    if source_content:
+        completeness = len(docx_content) / len(source_content)
+        if completeness < 0.85:
+            errors.append(
+                f"{label}: DOCX text appears incomplete versus Markdown "
+                f"({completeness:.0%} retained)"
+            )
+        elif completeness < 0.95:
+            warnings.append(
+                f"{label}: verify DOCX text parity with Markdown ({completeness:.0%} retained)"
+            )
+
+
+def bundle_files(directory: Path, slug: str) -> dict[str, Path]:
+    return {
+        "English DOCX": directory / f"{slug}.en.docx",
+        "Chinese DOCX": directory / f"{slug}.zh-CN.docx",
+        "English Markdown": directory / f"{slug}.md",
+        "Chinese Markdown": directory / f"{slug}.zh-CN.md",
+        "English HTML": directory / f"{slug}.html",
+        "Chinese HTML": directory / f"{slug}.zh-CN.html",
+        "Bilingual HTML": directory / f"{slug}.bilingual.html",
+        "Metadata": directory / f"{slug}.meta.json",
+        "Review": directory / f"{slug}.review.md",
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dir", required=True, type=Path, help="Directory containing the bundle")
@@ -149,15 +349,7 @@ def main() -> int:
     directory = args.dir.expanduser().resolve()
     slug = args.slug
     canonical_handle = args.handle or re.sub(r"-v\d+$", "", slug)
-    files = {
-        "English Markdown": directory / f"{slug}.md",
-        "Chinese Markdown": directory / f"{slug}.zh-CN.md",
-        "English HTML": directory / f"{slug}.html",
-        "Chinese HTML": directory / f"{slug}.zh-CN.html",
-        "Bilingual HTML": directory / f"{slug}.bilingual.html",
-        "Metadata": directory / f"{slug}.meta.json",
-        "Review": directory / f"{slug}.review.md",
-    }
+    files = bundle_files(directory, slug)
 
     errors: list[str] = []
     warnings: list[str] = []
@@ -185,6 +377,8 @@ def main() -> int:
     validate_markdown("Chinese Markdown", zh_md, errors, warnings)
     validate_html("English HTML", en_html, errors)
     validate_html("Chinese HTML", zh_html, errors)
+    validate_docx("English DOCX", files["English DOCX"], en_md, errors, warnings)
+    validate_docx("Chinese DOCX", files["Chinese DOCX"], zh_md, errors, warnings)
     validate_meta(meta, slug, canonical_handle, errors, warnings)
 
     if "Shopify API: Not called" not in review and "Shopify API：未调用" not in review:
