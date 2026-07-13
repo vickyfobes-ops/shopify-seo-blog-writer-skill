@@ -45,7 +45,7 @@ Use competitor pages to identify unanswered questions, not to borrow their wordi
 - Opening: answer intent and use the main keyword naturally.
 - H2s: map to meaningful subtopics and secondary keywords; avoid near-duplicate headings.
 - FAQ: five concise, high-intent questions; include source references in the fifth answer.
-- Images: at least five descriptive alt texts without repetitive keyword stuffing.
+- Images: generate at least five topic-specific original AI design visualizations with descriptive alt text, distinct local filenames, and no repetitive keyword stuffing.
 - Internal links: use descriptive anchors and mark unverified handles in metadata.
 - CTA: appear before FAQ and ask for the information needed to begin a useful buying conversation.
 
