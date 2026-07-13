@@ -209,6 +209,25 @@ Choose a table after checking room dimensions and daily seating needs.
             MODULE.validate_docx("English DOCX", output, markdown, errors, warnings)
             self.assertTrue(any("text color must be #000000" in error for error in errors))
 
+    def test_docx_validator_rejects_magazine_template_text(self) -> None:
+        markdown = "# Guide\n\nBody copy.\n"
+        with tempfile.TemporaryDirectory() as temporary_directory:
+            directory = Path(temporary_directory)
+            output = directory / "guide.en.docx"
+            BUILD_MODULE.build_docx(markdown, output, "en-US", source_dir=directory)
+            with zipfile.ZipFile(output) as archive:
+                members = {name: archive.read(name) for name in archive.namelist()}
+            members["word/document.xml"] = members["word/document.xml"].replace(
+                b"Guide", b"DESIGN INSPIRATION", 1
+            )
+            with zipfile.ZipFile(output, "w") as archive:
+                for name, payload in members.items():
+                    archive.writestr(name, payload)
+            errors: list[str] = []
+            warnings: list[str] = []
+            MODULE.validate_docx("English DOCX", output, markdown, errors, warnings)
+            self.assertTrue(any("forbidden template text" in error for error in errors))
+
     def test_markdown_metrics_for_valid_shape(self) -> None:
         sections = "\n".join(f"## Section {index}\nBody" for index in range(1, 6))
         images = "\n".join(f"![Alt {index}](image-{index}.jpg)" for index in range(1, 6))
