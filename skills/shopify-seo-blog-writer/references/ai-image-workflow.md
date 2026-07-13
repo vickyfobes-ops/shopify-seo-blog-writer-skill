@@ -52,6 +52,32 @@ Each prompt should specify:
 
 Use photorealistic product or architectural visualization for furniture and buying-guide topics unless the subject clearly needs another visual form.
 
+## Mandatory Prompt Shell
+
+Use this exact prompt shell once per selected image. Replace every `{...}` field
+from the current topic's visual brief; do not reuse values from another topic.
+The shell is deliberately fixed so image generation is never skipped, while the
+subject, scene, camera, and teaching purpose still change with the article.
+
+```text
+Create one original AI design visualization for the Shopify SEO article
+"{article topic}". Image role: {image role}. It must help the reader understand
+the section "{target H2}" by showing {teaching purpose}. Depict {product or
+subject} made from {material or finish} in {room, setting, or use context}.
+Composition: {camera angle}, complete subject visible, ultra-wide 12:5 frame,
+useful negative space, realistic scale, credible construction, and {lighting}.
+Visual style: {photorealistic product or architectural visualization style}.
+This is an original illustrative design concept, not a customer project or
+technical drawing. Do not include people unless required to explain the section.
+No logos, brand marks, captions, measurements, readable screens, watermarks,
+text artifacts, malformed objects, duplicated furniture, impossible geometry,
+or unsupported performance claims.
+```
+
+Before writing either DOCX, confirm in the task log that the image-generation
+tool was called once for each selected asset and that every selected result is
+saved locally. A completed prompt alone is not evidence that an image exists.
+
 ## Asset Pipeline
 
 For every selected image:
@@ -62,7 +88,8 @@ For every selected image:
 4. Use a descriptive lowercase hyphenated PNG or JPEG filename.
 5. Insert the same local path at the corresponding location in both Markdown files and both language HTML files.
 6. Write natural, language-specific alt text that explains what the image helps the reader inspect.
-7. Build both DOCX files only after every local image exists.
+7. Build both DOCX files only after every local image exists and the task log
+   records one image-generation call for each selected asset.
 8. Render the DOCX files and inspect every image for visibility, distortion, cropping, caption pairing, and page flow.
 
 Never leave a project-referenced asset only under a model-output or temporary directory.
