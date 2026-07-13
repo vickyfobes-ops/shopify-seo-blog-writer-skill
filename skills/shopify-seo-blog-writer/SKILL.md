@@ -87,6 +87,7 @@ Use the existing `content/blogs/drafts/` directory when available. Otherwise cre
 ### 6. Generate and Embed Original AI Images
 
 - Follow `references/ai-image-workflow.md`; an image plan alone is not a deliverable.
+- Use the mandatory prompt shell in that reference once per image; replace every variable from the current article's visual brief. Call the available image-generation tool once for each selected asset before building either DOCX.
 - Derive a new visual brief from the current topic, keyword, search intent, product facts, and article sections. Do not reuse a fixed image set, generic prompt set, or another topic's filenames.
 - Generate at least five distinct images and prefer seven for a long guide. Use the built-in image-generation capability when available, with one focused prompt per asset.
 - Save every selected result inside `<output-directory>/images/<slug>/` and normalize it to exactly 1200 x 500 pixels without stretching. Never leave a referenced asset only in a temporary or model-output directory.
@@ -114,7 +115,7 @@ python <skill-dir>/scripts/build_docx.py --input <output-directory>/<slug>.md --
 python <skill-dir>/scripts/build_docx.py --input <output-directory>/<slug>.zh-CN.md --meta <output-directory>/<slug>.meta.json --output <output-directory>/<slug>.zh-CN.docx --language zh-CN
 ```
 
-Treat DOCX as the primary result shown to the user. Follow the V4 format reference exactly: local-draft header and footer, first-page SEO table, real embedded 1200:500 original AI images, neutral black-and-white typography, and one-inch Letter-page margins. The generator fails on missing or unsupported images by default; `--allow-placeholders` is for debugging only and can never satisfy final bundle validation. Keep Markdown, HTML, JSON, review files, and generated image assets as supporting deliverables for editing and automation.
+Treat DOCX as the primary result shown to the user. Follow the V4 format reference exactly: local-draft header and footer, first-page SEO table, real embedded 1200:500 original AI images, `#000000` text for every text role (including hyperlinks), and one-inch Letter-page margins. The generator fails on missing or unsupported images by default; `--allow-placeholders` is for debugging only and can never satisfy final bundle validation. Keep Markdown, HTML, JSON, review files, and generated image assets as supporting deliverables for editing and automation.
 
 When a document-generation and rendering tool is available, use it to render every DOCX page and inspect for clipping, broken tables, missing glyphs, image distortion, bad page breaks, and nearly empty spill pages. Revise and rerender until clean. When rendering is unavailable, use the bundled generator and structural validator, then state that visual QA was unavailable in the review report. Never skip either DOCX.
 
