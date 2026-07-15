@@ -28,17 +28,12 @@ Not allowed to change by topic:
 - planned-image cards, image placeholders, or source-only title pages;
 - replacing the first-page SEO table with freeform metadata text.
 
-## Page And Safety Labels
+## Page Setup
 
 - Use US Letter portrait pages with one-inch margins on all sides.
-- Repeat a compact 8.5-point header and footer on every page.
-- Use `SHOPIFY BLOG DRAFT  |  OFFICE PLANNING GUIDE` for English office topics.
-- Use `SHOPIFY BLOG 草稿  |  办公空间规划指南` for Chinese office topics.
-- Use the equivalent buying-and-planning label for non-office topics.
-- Put `Local preview - not published  |  {PAGE}` in the English footer.
-- Put `本地预览 - 未发布  |  {PAGE}` in the Chinese footer.
-- Use a real automatic Word page field. Never imply that the article was
-  uploaded, drafted, or published in Shopify.
+- Do not create a page header or footer in either language.
+- Do not add page numbers, running labels, publication-status labels, or any
+  other header/footer text.
 
 ## First Page
 
@@ -68,7 +63,7 @@ values and table structure.
 
 ## Typography
 
-- Body: Calibri 11 point, black, 1.1 line spacing, 6 points after.
+- Body: Calibri 10.5 point (五号), black, 1.1 line spacing, 6 points after.
 - CJK fallback: automatically select an installed sans-serif Chinese font,
   preferring Microsoft YaHei on Windows, Heiti SC on macOS, and Noto Sans CJK
   SC or Source Han Sans SC on Linux.
@@ -80,7 +75,7 @@ values and table structure.
 - Keep the presentation neutral and editorial: black text, white pages, thin
   gray rules, and no decorative color theme.
 - Text color is locked to `#000000` for body text, headings, metadata, captions,
-  header, footer, and hyperlinks. Underlines are allowed for links, but blue,
+  and hyperlinks. Underlines are allowed for links, but blue,
   gray, automatic, theme-derived, or accent-colored text is not.
 - Treat any blue, teal, gold, or brand-accent heading treatment as a failed
   build for this master.
