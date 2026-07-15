@@ -45,13 +45,13 @@ The Skill is available to Codex on the next turn after installation.
 Topic-only prompt:
 
 ```text
-Use $shopify-seo-blog-writer for: epoxy conference table size guide
+Use $shopify-seo-blog-writer for: [enter your topic]
 ```
 
 Chinese prompt:
 
 ```text
-使用 $shopify-seo-blog-writer，选题：环氧树脂厨房岛台常见问题
+使用 $shopify-seo-blog-writer，选题：[填写你的选题]
 ```
 
 Optional context can include a brand guide, product facts, market, audience, target word count, or preferred CTA. None is required to start.
@@ -65,11 +65,10 @@ The two primary files are always:
 
 No extra “export Word” request is needed. The Skill also retains Markdown, HTML, JSON, and review files as supporting material.
 
-Both Word files use the same approved review format: a local-draft header and
-footer, first-page SEO information table, real embedded 1200:500 original AI images,
-black-and-white editorial typography, readable comparison tables, and automatic
-page numbers. They are labeled as local previews and are not published to
-Shopify.
+Both Word files use the same approved review format: no page header or footer,
+Calibri 10.5-point (五号) body text, a first-page SEO information table, real embedded 1200:500 original AI images,
+black-and-white editorial typography, and readable comparison tables. They do
+not contain a page header, footer, or page number, and are not published to Shopify.
 
 ## Quality Standard
 
@@ -95,8 +94,7 @@ The validator uses only the Python standard library.
 
 The bundled DOCX generator also uses only the Python standard library. It
 creates the approved V4 Word layout with real headings, lists, fixed-width
-tables, clickable links, embedded images, localized headers and footers, and
-automatic page numbering. The validator checks these format requirements in
+tables, clickable links, and embedded images. The validator checks these format requirements in
 addition to content completeness. Missing images now stop DOCX generation by
 default. The optional `--allow-placeholders` flag is only for debugging, and
 placeholder-based bundles always fail final validation.
