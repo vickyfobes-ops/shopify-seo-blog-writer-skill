@@ -26,10 +26,10 @@ Optional when requested:
 - Treat both Word files as required, user-facing deliverables. Never omit them silently.
 - Build each DOCX from its matching Markdown source after factual and bilingual review.
 - Preserve the complete heading order, prose, numbers, units, tables, lists, CTA, FAQ, links, and source notes.
-- Apply `docx-format-standard.md`: US Letter portrait, exact one-inch margins, V4 first-page front matter, neutral black-and-white typography, localized local-draft labels, and automatic page numbers.
+- Apply `docx-format-standard.md`: US Letter portrait, exact one-inch margins, V4 first-page front matter, neutral black-and-white typography, Calibri 10.5-point (五号) body text, and no page headers or footers.
 - Embed every Markdown image in a centered 6.15 x 2.5625-inch frame with alt text and a caption.
 - Missing, remote-only, unsupported, or placeholder images block final DOCX generation. The optional `--allow-placeholders` generator flag is for debugging only and does not satisfy bundle validation.
-- Use real Word heading styles, real lists, readable fixed-width tables, clickable links, header/footer parts, and page fields.
+- Use real Word heading styles, real lists, readable fixed-width tables, and clickable links. Do not create header/footer parts or page fields.
 - Keep the approved buying-guide master locked. The final DOCX must not become a
   centered cover-page template, a design-inspiration deck, a planned-image
   worksheet, or a source-only editorial wrapper.
