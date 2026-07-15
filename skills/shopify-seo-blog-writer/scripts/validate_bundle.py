@@ -30,8 +30,6 @@ DOCX_REQUIRED_PARTS = {
     "_rels/.rels",
     "word/document.xml",
     "word/styles.xml",
-    "word/header1.xml",
-    "word/footer1.xml",
     "word/_rels/document.xml.rels",
 }
 PLACEHOLDER_SHA256 = "f0417bb27a7cdfbc6e15f5f63b1a8d0419c1d9fa2cbafe697e8898c8095ef945"
@@ -351,8 +349,6 @@ def validate_docx(
                 errors.append(f"{label}: corrupt ZIP member {damaged_member!r}")
                 return
             document = ET.fromstring(archive.read("word/document.xml"))
-            header = ET.fromstring(archive.read("word/header1.xml"))
-            footer = ET.fromstring(archive.read("word/footer1.xml"))
             styles_payload = archive.read("word/styles.xml")
             styles = ET.fromstring(styles_payload)
             media_names = [
@@ -383,9 +379,8 @@ def validate_docx(
             )
             break
 
-    # The approved V4 preview uses black text only. Inspect text-color elements
-    # in all text-bearing DOCX parts so later edits cannot introduce theme blue.
-    for part_name, root in (("document", document), ("styles", styles), ("header", header), ("footer", footer)):
+    # The approved preview uses black text only. Inspect all text-bearing parts.
+    for part_name, root in (("document", document), ("styles", styles)):
         for color in root.findall(".//w:color", namespace):
             value = str(color.get(f"{{{WORD_NAMESPACE}}}val", "")).upper()
             uses_theme = any(
@@ -403,37 +398,12 @@ def validate_docx(
     if not title_styles and not heading_styles:
         errors.append(f"{label}: expected a real Word Title or Heading 1 style")
 
-    if document.find(".//w:headerReference", namespace) is None:
-        errors.append(f"{label}: missing section header reference")
-    if document.find(".//w:footerReference", namespace) is None:
-        errors.append(f"{label}: missing section footer reference")
-
-    header_text = "".join(node.text or "" for node in header.findall(".//w:t", namespace))
-    footer_text = "".join(node.text or "" for node in footer.findall(".//w:t", namespace))
-    footer_fields = "".join(
-        node.text or "" for node in footer.findall(".//w:instrText", namespace)
-    )
-    chinese = "chinese" in label.lower() or "zh-cn" in label.lower()
-    if "SHOPIFY BLOG" not in header_text:
-        errors.append(f"{label}: header must identify the local Shopify blog draft")
-    if chinese:
-        if "草稿" not in header_text:
-            errors.append(f"{label}: Chinese header must include 草稿")
-        if "未发布" not in footer_text:
-            errors.append(f"{label}: Chinese footer must state 未发布")
-    else:
-        if "DRAFT" not in header_text:
-            errors.append(f"{label}: English header must include DRAFT")
-        if "not published" not in footer_text.lower():
-            errors.append(f"{label}: English footer must state not published")
-    if "PAGE" not in footer_fields:
-        errors.append(f"{label}: footer must contain an automatic PAGE field")
-    for forbidden in FORBIDDEN_DOCX_PHRASES:
-        if forbidden in header_text or forbidden in footer_text:
-            errors.append(
-                f"{label}: header/footer contains forbidden template text {forbidden!r}"
-            )
-            break
+    if document.find(".//w:headerReference", namespace) is not None:
+        errors.append(f"{label}: headers are not allowed")
+    if document.find(".//w:footerReference", namespace) is not None:
+        errors.append(f"{label}: footers are not allowed")
+    if any(name.startswith("word/header") or name.startswith("word/footer") for name in archive.namelist()):
+        errors.append(f"{label}: DOCX package must not contain header or footer parts")
 
     section = document.find(".//w:sectPr", namespace)
     if section is None:
@@ -509,6 +479,17 @@ def validate_docx(
     east_asia_fonts.discard("")
     if not east_asia_fonts or east_asia_fonts.issubset({"Calibri", "Arial", "Aptos"}):
         errors.append(f"{label}: styles must include a dedicated CJK-capable font")
+
+    normal_style = styles.find(".//w:style[@w:styleId='Normal']", namespace)
+    if normal_style is None:
+        errors.append(f"{label}: missing Normal style")
+    else:
+        normal_fonts = normal_style.find(".//w:rFonts", namespace)
+        normal_size = normal_style.find(".//w:sz", namespace)
+        if normal_fonts is None or normal_fonts.get(f"{{{WORD_NAMESPACE}}}ascii") != "Calibri":
+            errors.append(f"{label}: body font must be Calibri")
+        if normal_size is None or normal_size.get(f"{{{WORD_NAMESPACE}}}val") != "21":
+            errors.append(f"{label}: body font size must be 10.5 pt (五号)")
 
     source_content = normalized_content(source_markdown)
     docx_content = normalized_content(document_text)
