@@ -3,7 +3,7 @@
 
 The generator uses only the Python standard library. It creates a local,
 unpublished editorial preview with bilingual labels, SEO front matter, embedded
-images, real Word styles, tables, lists, links, headers, footers, and page fields.
+images, real Word styles, tables, lists, and links, without page headers or footers.
 """
 
 from __future__ import annotations
@@ -266,20 +266,8 @@ class DocumentBuilder:
                 "settings.xml",
                 None,
             ),
-            (
-                "rId4",
-                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/header",
-                "header1.xml",
-                None,
-            ),
-            (
-                "rId5",
-                "http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer",
-                "footer1.xml",
-                None,
-            ),
         ]
-        self.next_relationship = 10
+        self.next_relationship = 4
         self.media: list[tuple[str, bytes]] = []
         self.next_drawing_id = 1
         self.title = "SEO Blog Draft"
@@ -643,10 +631,6 @@ class DocumentBuilder:
 
     def finish(self) -> None:
         section = add(self.body, "sectPr")
-        header_reference = add(section, "headerReference", {"type": "default"})
-        header_reference.set(q(R, "id"), "rId4")
-        footer_reference = add(section, "footerReference", {"type": "default"})
-        footer_reference.set(q(R, "id"), "rId5")
         add(
             section,
             "pgSz",
@@ -660,8 +644,6 @@ class DocumentBuilder:
                 "right": str(ONE_INCH_DXA),
                 "bottom": str(ONE_INCH_DXA),
                 "left": str(ONE_INCH_DXA),
-                "header": "720",
-                "footer": "720",
                 "gutter": "0",
             },
         )
@@ -770,8 +752,8 @@ def styles_xml(language: str) -> bytes:
         },
     )
     add(run_default, "lang", {"val": language, "eastAsia": "zh-CN"})
-    add(run_default, "sz", {"val": "22"})
-    add(run_default, "szCs", {"val": "22"})
+    add(run_default, "sz", {"val": "21"})
+    add(run_default, "szCs", {"val": "21"})
     paragraph_default = add(add(defaults, "pPrDefault"), "pPr")
     add(paragraph_default, "spacing", {"after": "120", "line": "264", "lineRule": "auto"})
 
@@ -853,8 +835,8 @@ def styles_xml(language: str) -> bytes:
         },
     )
     add(normal_rpr, "color", {"val": "000000"})
-    add(normal_rpr, "sz", {"val": "22"})
-    add(normal_rpr, "szCs", {"val": "22"})
+    add(normal_rpr, "sz", {"val": "21"})
+    add(normal_rpr, "szCs", {"val": "21"})
 
     paragraph_style("Eyebrow", "Eyebrow", size="19", bold=True, after="100", keep_next=True)
     paragraph_style("Title", "Title", size="48", bold=True, after="160", keep_next=True, outline="0")
@@ -889,8 +871,8 @@ def styles_xml(language: str) -> bytes:
         keep_next=True,
         outline="2",
     )
-    paragraph_style("Quote", "Quote", size="22", italic=True, before="80", after="120")
-    list_style = paragraph_style("ListParagraph", "List Paragraph", size="22", after="80", line="264")
+    paragraph_style("Quote", "Quote", size="21", italic=True, before="80", after="120")
+    list_style = paragraph_style("ListParagraph", "List Paragraph", size="21", after="80", line="264")
     list_ppr = list_style.find(w("pPr"))
     assert list_ppr is not None
     add(list_ppr, "ind", {"left": "720", "hanging": "360"})
@@ -974,71 +956,6 @@ def relationships_xml(relationships: list[tuple[str, str, str, str | None]]) -> 
     return xml_bytes(root)
 
 
-def _header_footer_run_properties(parent: ET.Element, *, bold: bool = False) -> ET.Element:
-    properties = add(parent, "rPr")
-    add(
-        properties,
-        "rFonts",
-        {
-            "ascii": "Calibri",
-            "hAnsi": "Calibri",
-            "eastAsia": CJK_FONT,
-            "cs": "Calibri",
-        },
-    )
-    add(properties, "color", {"val": "000000"})
-    add(properties, "sz", {"val": "17"})
-    add(properties, "szCs", {"val": "17"})
-    if bold:
-        add(properties, "b")
-    return properties
-
-
-def header_xml(text: str) -> bytes:
-    header = ET.Element(w("hdr"))
-    paragraph = add(header, "p")
-    properties = add(paragraph, "pPr")
-    add(properties, "jc", {"val": "left"})
-    run = add(paragraph, "r")
-    _header_footer_run_properties(run, bold=True)
-    text_node = add(run, "t")
-    text_node.text = text
-    return xml_bytes(header)
-
-
-def footer_xml(text: str) -> bytes:
-    footer = ET.Element(w("ftr"))
-    paragraph = add(footer, "p")
-    properties = add(paragraph, "pPr")
-    add(properties, "jc", {"val": "right"})
-
-    prefix_run = add(paragraph, "r")
-    _header_footer_run_properties(prefix_run)
-    prefix_text = add(prefix_run, "t")
-    prefix_text.set(q(XML, "space"), "preserve")
-    prefix_text.text = text
-
-    begin_run = add(paragraph, "r")
-    _header_footer_run_properties(begin_run)
-    add(begin_run, "fldChar", {"fldCharType": "begin"})
-    instruction_run = add(paragraph, "r")
-    _header_footer_run_properties(instruction_run)
-    instruction = add(instruction_run, "instrText")
-    instruction.set(q(XML, "space"), "preserve")
-    instruction.text = " PAGE "
-    separate_run = add(paragraph, "r")
-    _header_footer_run_properties(separate_run)
-    add(separate_run, "fldChar", {"fldCharType": "separate"})
-    display_run = add(paragraph, "r")
-    _header_footer_run_properties(display_run)
-    display_text = add(display_run, "t")
-    display_text.text = "1"
-    end_run = add(paragraph, "r")
-    _header_footer_run_properties(end_run)
-    add(end_run, "fldChar", {"fldCharType": "end"})
-    return xml_bytes(footer)
-
-
 def content_types_xml() -> bytes:
     root = ET.Element("Types", {"xmlns": CT})
     defaults = {
@@ -1059,8 +976,6 @@ def content_types_xml() -> bytes:
         "/word/styles.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml",
         "/word/numbering.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.numbering+xml",
         "/word/settings.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml",
-        "/word/header1.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml",
-        "/word/footer1.xml": "application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml",
         "/docProps/core.xml": "application/vnd.openxmlformats-package.core-properties+xml",
         "/docProps/app.xml": "application/vnd.openxmlformats-officedocument.extended-properties+xml",
     }
@@ -1206,8 +1121,6 @@ def build_docx(
         archive.writestr("word/styles.xml", styles_xml(language))
         archive.writestr("word/numbering.xml", numbering_xml())
         archive.writestr("word/settings.xml", settings_xml())
-        archive.writestr("word/header1.xml", header_xml(builder.labels["header"]))
-        archive.writestr("word/footer1.xml", footer_xml(builder.labels["footer"]))
         archive.writestr("word/_rels/document.xml.rels", relationships_xml(builder.relationships))
         for filename, payload in builder.media:
             archive.writestr(f"word/media/{filename}", payload)
