@@ -40,14 +40,14 @@ Locked elements:
 - five-row SEO table on page one;
 - embedded hero image on page one;
 - black text only;
-- local-draft header and footer on every page;
+- no page header or footer;
 - real embedded images instead of planned-image cards or text placeholders.
 
 Variable elements:
 
 - topic, keyword, H2 structure, formulas, FAQs, image subjects, and localized
   labels;
-- office versus non-office guide wording in the running header;
+- body text in Calibri 10.5 point (五号) with no fixed brand identity;
 - factual content, visual brief, and image prompts for the current topic only.
 
 ## Default Deliverable
@@ -142,7 +142,7 @@ python <skill-dir>/scripts/build_docx.py --input <output-directory>/<slug>.md --
 python <skill-dir>/scripts/build_docx.py --input <output-directory>/<slug>.zh-CN.md --meta <output-directory>/<slug>.meta.json --output <output-directory>/<slug>.zh-CN.docx --language zh-CN
 ```
 
-Treat DOCX as the primary result shown to the user. Follow the V4 format reference exactly: local-draft header and footer, first-page SEO table, real embedded 1200:500 original AI images, `#000000` text for every text role (including hyperlinks), and one-inch Letter-page margins. The generator fails on missing or unsupported images by default; `--allow-placeholders` is for debugging only and can never satisfy final bundle validation. Keep Markdown, HTML, JSON, review files, and generated image assets as supporting deliverables for editing and automation.
+Treat DOCX as the primary result shown to the user. Follow the V4 format reference exactly: no page header or footer, Calibri 10.5-point (五号) body text, first-page SEO table, real embedded 1200:500 original AI images, `#000000` text for every text role (including hyperlinks), and one-inch Letter-page margins. Use only the brand information supplied for the current task; otherwise keep the article, CTA, and document metadata brand-neutral. The generator fails on missing or unsupported images by default; `--allow-placeholders` is for debugging only and can never satisfy final bundle validation. Keep Markdown, HTML, JSON, review files, and generated image assets as supporting deliverables for editing and automation.
 
 Use `scripts/build_docx.py` as the required document generator for final
 deliverables. Do not replace it with an ad hoc DOCX writer, a generic report
