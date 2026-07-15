@@ -118,14 +118,15 @@ Choose a table after checking room dimensions and daily seating needs.
             with zipfile.ZipFile(output) as archive:
                 names = set(archive.namelist())
                 document_xml = archive.read("word/document.xml").decode("utf-8")
-                header_xml = archive.read("word/header1.xml").decode("utf-8")
-                footer_xml = archive.read("word/footer1.xml").decode("utf-8")
+                styles_xml = archive.read("word/styles.xml").decode("utf-8")
                 self.assertIn("word/media/image1.png", names)
                 self.assertIn("Primary keyword", document_xml)
                 self.assertIn("epoxy-conference-table-guide", document_xml)
-                self.assertIn("OFFICE PLANNING GUIDE", header_xml)
-                self.assertIn("not published", footer_xml)
-                self.assertIn(" PAGE ", footer_xml)
+                self.assertNotIn("word/header1.xml", names)
+                self.assertNotIn("word/footer1.xml", names)
+                self.assertIn('styleId="Normal"', styles_xml)
+                self.assertIn('w:ascii="Calibri"', styles_xml)
+                self.assertIn('w:sz w:val="21"', styles_xml)
 
     def test_chinese_docx_uses_localized_v4_labels_and_cjk_font(self) -> None:
         markdown = """# 环氧树脂会议桌尺寸指南
@@ -154,12 +155,10 @@ Choose a table after checking room dimensions and daily seating needs.
             self.assertEqual(errors, [])
             self.assertEqual(warnings, [])
             with zipfile.ZipFile(output) as archive:
-                header_xml = archive.read("word/header1.xml").decode("utf-8")
-                footer_xml = archive.read("word/footer1.xml").decode("utf-8")
                 styles_xml = archive.read("word/styles.xml").decode("utf-8")
                 document_xml = archive.read("word/document.xml").decode("utf-8")
-                self.assertIn("SHOPIFY BLOG 草稿", header_xml)
-                self.assertIn("未发布", footer_xml)
+                self.assertNotIn("word/header1.xml", archive.namelist())
+                self.assertNotIn("word/footer1.xml", archive.namelist())
                 self.assertIn(BUILD_MODULE.CJK_FONT, styles_xml)
                 self.assertNotIn("图片待补", document_xml)
 
