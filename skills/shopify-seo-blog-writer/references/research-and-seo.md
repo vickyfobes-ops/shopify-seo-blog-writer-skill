@@ -43,11 +43,12 @@ Use competitor pages to identify unanswered questions, not to borrow their wordi
 - URL handle: concise, lowercase, hyphenated, no version suffix.
 - H1: one only; include the primary keyword naturally.
 - Opening: answer intent and use the main keyword naturally.
+- Opening variation: select an opening mode from the quality standard, reject reusable short-answer formulas, and compare the normalized first 12 words against recent drafts.
 - H2s: map to meaningful subtopics and secondary keywords; avoid near-duplicate headings.
 - FAQ: five concise, high-intent questions; include source references in the fifth answer.
 - Images: generate at least five topic-specific original AI design visualizations with descriptive alt text, distinct local filenames, and no repetitive keyword stuffing.
 - Internal links: use descriptive anchors and mark unverified handles in metadata.
-- CTA: appear before FAQ and ask for the information needed to begin a useful buying conversation.
+- CTA: appear before FAQ, select one intent trigger using the quality-standard CTA matrix, and ask for the information needed for that exact next step. Do not add quantified brand proof unless the trigger explicitly permits it.
 
 Do not target a keyword-density percentage. Readability and intent coverage take priority.
 

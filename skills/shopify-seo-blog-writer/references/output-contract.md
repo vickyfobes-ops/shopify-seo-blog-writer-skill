@@ -58,6 +58,14 @@ Use valid UTF-8 JSON. Include at least:
   "topic": "User topic",
   "keyword": "primary keyword",
   "searchIntent": "commercial investigation",
+  "editorialStrategy": {
+    "structureFamily": "case-process-analysis | diagnostic-troubleshooting | decision-comparison | sizing-planning | material-finish | delivery-installation | care-maintenance",
+    "selectedStructure": "Topic-specific section progression",
+    "openingMode": "verdict-first | constraint-first | diagnostic-observation | comparison-tension | misconception-correction | process-stakes",
+    "openingSignature": "Normalized first 12 words",
+    "recentStructureSimilarityCheck": "passed",
+    "recentOpeningSimilarityCheck": "passed"
+  },
   "contentMetrics": {
     "englishBodyWords": 0,
     "h1Count": 1,
@@ -86,6 +94,19 @@ Use valid UTF-8 JSON. Include at least:
     "urlHandle": "lowercase-hyphenated-slug",
     "excerpt": "Short summary",
     "shopifyTags": []
+  },
+  "ctaStrategy": {
+    "primaryCtaTrigger": "design-case | troubleshooting | size-planning | material-approval | buying-comparison | delivery-installation | care-maintenance | brand-trust",
+    "ctaPresentation": "integrated-conclusion | split-action-block | expertise-bridge | summary-brand-bridge | evidence-or-brief-request",
+    "ctaPattern": "The intent-specific closing function selected from the CTA matrix",
+    "requestedInputs": [],
+    "destination": {
+      "label": "Real page or collection name, or empty",
+      "url": "Verified internal URL, or empty"
+    },
+    "brandProofUsed": [],
+    "brandProofReason": "Why a verified metric is necessary, or empty when no metric is used",
+    "recentDraftSimilarityCheck": "passed"
   },
   "internalLinkSuggestions": [],
   "imageGeneration": {
@@ -133,6 +154,8 @@ Use valid UTF-8 JSON. Include at least:
 
 The validator accepts extra fields. Keep source support, unverified URLs, assumptions, and blockers explicit.
 
+`editorialStrategy` and `ctaStrategy` are required quality records, not decorative metadata. Select them before drafting and update them if the finished article changes. A similarity check may be `not-available` only when no recent local drafts exist; explain that limitation in the review.
+
 When a local filename uses `-vN`, keep `seo.urlHandle` canonical without that version suffix. The validator removes a trailing local version automatically, or accepts `--handle <canonical-handle>` explicitly.
 
 ## Review Contract
@@ -145,6 +168,7 @@ The review must report:
 - SEO title and meta-description lengths;
 - word, heading, FAQ, image, and source counts;
 - originality and factual checks;
+- selected structure family, opening mode, opening-similarity check, structure-similarity check, CTA trigger, and CTA presentation;
 - bilingual parity status;
 - unverified brand facts or internal URLs;
 - publication blockers;

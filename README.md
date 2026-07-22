@@ -80,6 +80,9 @@ The Skill uses a decision-first editorial standard:
 - use one unit system consistently;
 - verify measurable claims with credible sources;
 - keep FAQ as the final section and put sources in the fifth answer;
+- select an intent-matched structure family instead of reusing one universal outline;
+- rotate topic-specific opening modes and reject repeated short-answer formulas;
+- select CTA function and presentation separately, with quantified brand proof off by default;
 - never invent brand facts, customer stories, certifications, or performance promises.
 
 ## Validate an Output Bundle

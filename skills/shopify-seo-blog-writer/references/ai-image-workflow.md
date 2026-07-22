@@ -52,6 +52,16 @@ Each prompt should specify:
 
 Use photorealistic product or architectural visualization for furniture and buying-guide topics unless the subject clearly needs another visual form.
 
+## Confirmed Tabletop-to-Base Geometry
+
+Apply the following product-visual rules whenever a generated image shows the table base:
+
+- For a rectangular or clearly elongated tabletop, show two separate black square-tube metal three-prong base assemblies positioned near the two ends. Each assembly must have exactly three vertical supports. At both the top and the floor, three square-tube arms must branch from one central junction in a visible Y-shaped / three-prong geometry. Treat an elongated oval tabletop the same way unless verified product information specifies another base. Do not simplify this into an inverted-U leg, rectangular loop frame, four-leg trestle, or one centered cross pedestal.
+- For a round tabletop, show one centered black metal four-way cross base. The four vertical frame sections must extend symmetrically from the center beneath the round top. Do not use two separate end-frame bases.
+- For a square, coffee, or other special tabletop without verified base information, do not infer either configuration. Mark the base choice as unverified in the visual brief and review.
+
+State the tabletop shape, number of base assemblies, three vertical supports per assembly, top-and-bottom Y branching, base position, and black square-tube construction explicitly in every applicable prompt. Compare the result against the user-approved base reference image during visual review. Reject ordinary inverted-U or rectangular loop legs, as well as any shape/base mismatch, extra legs, floating joints, duplicated members, asymmetric branches, impossible connections, or hybrid of the rectangular-table and round-table systems.
+
 ## Mandatory Prompt Shell
 
 Use this exact prompt shell once per selected image. Replace every `{...}` field

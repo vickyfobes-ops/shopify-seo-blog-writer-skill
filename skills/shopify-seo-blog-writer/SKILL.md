@@ -87,7 +87,9 @@ Use the existing `content/blogs/drafts/` directory when available. Otherwise cre
 
 ### 3. Build the Decision Structure
 
-- Open with a direct answer in the first 120 words.
+- Choose one intent-matched structure family and one opening mode from `references/quality-standard.md` before drafting. Record both in metadata.
+- Compare the planned H2 sequence, opening signature, and CTA combination with the current batch and recent local drafts. Change at least two of those three dimensions when similarity is high.
+- Open with a useful answer or diagnostic orientation in the first 120 words without forcing every article into the same verdict-first sentence pattern.
 - Select one recommended default when readers face competing values.
 - Label alternatives as verified compact options, occasional maximums, or project-specific exceptions.
 - State formulas and worked examples when they reduce ambiguity.
@@ -99,6 +101,7 @@ Use the existing `content/blogs/drafts/` directory when available. Otherwise cre
 
 - Target 1,800-2,600 words unless the search intent clearly needs less.
 - Use one H1 containing the primary keyword naturally.
+- Do not begin with “If you want the short answer,” “The short answer is,” or a lightly paraphrased reusable opener. Make the first sentence topic-specific and consistent with the selected opening mode.
 - Put the primary keyword in the opening, one useful H2, the conclusion, and metadata without forcing repetition.
 - Use tables only when they help compare concrete choices.
 - Include a practical CTA before FAQ. Use only verified URLs; otherwise label local suggestions as unverified in metadata.

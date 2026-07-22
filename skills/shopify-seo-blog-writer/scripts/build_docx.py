@@ -49,6 +49,8 @@ ONE_INCH_DXA = 1_440
 def preferred_cjk_font() -> str:
     candidates = [
         (Path("C:/Windows/Fonts/msyh.ttc"), "Microsoft YaHei"),
+        (Path("/System/Library/Fonts/Supplemental/Arial Unicode.ttf"), "Arial Unicode MS"),
+        (Path("/System/Library/Fonts/Hiragino Sans GB.ttc"), "Hiragino Sans GB"),
         (Path("/System/Library/Fonts/STHeiti Medium.ttc"), "Heiti SC"),
         (
             Path("/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"),
@@ -61,10 +63,6 @@ def preferred_cjk_font() -> str:
         (
             Path("/usr/share/fonts/opentype/source-han-sans/SourceHanSansSC-Regular.otf"),
             "Source Han Sans SC",
-        ),
-        (
-            Path("/System/Library/Fonts/Supplemental/Arial Unicode.ttf"),
-            "Arial Unicode MS",
         ),
     ]
     for path, family in candidates:
@@ -306,6 +304,17 @@ class DocumentBuilder:
     ) -> ET.Element:
         run = add(parent, "r")
         properties = add(run, "rPr")
+        if is_chinese_language(self.language):
+            add(
+                properties,
+                "rFonts",
+                {
+                    "ascii": CJK_FONT,
+                    "hAnsi": CJK_FONT,
+                    "eastAsia": CJK_FONT,
+                    "cs": CJK_FONT,
+                },
+            )
         if style:
             add(properties, "rStyle", {"val": style})
         if bold:

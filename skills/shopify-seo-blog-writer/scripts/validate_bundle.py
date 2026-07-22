@@ -41,6 +41,44 @@ FORBIDDEN_DOCX_PHRASES = (
     "DESIGN INSPIRATION",
     "PLANNED IMAGE",
 )
+FORBIDDEN_OPENING_PATTERNS = (
+    re.compile(r"^if\s+you\s+want\s+(?:the\s+)?short\s+answer\b", re.IGNORECASE),
+    re.compile(r"^the\s+short\s+answer\s+is\b", re.IGNORECASE),
+)
+STRUCTURE_FAMILIES = {
+    "case-process-analysis",
+    "diagnostic-troubleshooting",
+    "decision-comparison",
+    "sizing-planning",
+    "material-finish",
+    "delivery-installation",
+    "care-maintenance",
+}
+OPENING_MODES = {
+    "verdict-first",
+    "constraint-first",
+    "diagnostic-observation",
+    "comparison-tension",
+    "misconception-correction",
+    "process-stakes",
+}
+CTA_TRIGGERS = {
+    "design-case",
+    "troubleshooting",
+    "size-planning",
+    "material-approval",
+    "buying-comparison",
+    "delivery-installation",
+    "care-maintenance",
+    "brand-trust",
+}
+CTA_PRESENTATIONS = {
+    "integrated-conclusion",
+    "split-action-block",
+    "expertise-bridge",
+    "summary-brand-bridge",
+    "evidence-or-brief-request",
+}
 
 
 def read(path: Path) -> str:
@@ -199,6 +237,16 @@ def validate_markdown(label: str, text: str, errors: list[str], warnings: list[s
             f"{label}: expected at least 3 external source links in the final FAQ answer, "
             f"found {metrics['sources_at_end']}"
         )
+    body = re.sub(r"<!--.*?-->", "", text, flags=re.DOTALL)
+    body = re.sub(r"^# .+$", "", body, count=1, flags=re.MULTILINE).lstrip()
+    body = re.sub(
+        r"^(?:!\[[^\]]*\]\([^\)]+\)\s*)+",
+        "",
+        body,
+    ).lstrip()
+    opening = re.sub(r"\s+", " ", body).strip()
+    if any(pattern.search(opening) for pattern in FORBIDDEN_OPENING_PATTERNS):
+        errors.append(f"{label}: opening uses a forbidden reusable short-answer formula")
 
 
 def validate_meta(
@@ -208,12 +256,50 @@ def validate_meta(
     errors: list[str],
     warnings: list[str],
 ) -> None:
-    required = ["keyword", "searchIntent", "researchSources", "seo", "imagePlan", "selfReview", "shopify"]
+    required = [
+        "keyword",
+        "searchIntent",
+        "editorialStrategy",
+        "ctaStrategy",
+        "researchSources",
+        "seo",
+        "imagePlan",
+        "selfReview",
+        "shopify",
+    ]
     for key in required:
         if key not in meta:
             errors.append(f"meta: missing required key {key!r}")
     if "topic" not in meta:
         warnings.append("meta: add the original user topic for traceability")
+
+    editorial = meta.get("editorialStrategy")
+    if isinstance(editorial, dict):
+        if editorial.get("structureFamily") not in STRUCTURE_FAMILIES:
+            errors.append("meta: editorialStrategy.structureFamily is missing or invalid")
+        if editorial.get("openingMode") not in OPENING_MODES:
+            errors.append("meta: editorialStrategy.openingMode is missing or invalid")
+        for key in ("selectedStructure", "openingSignature"):
+            if not str(editorial.get(key, "")).strip():
+                errors.append(f"meta: editorialStrategy.{key} is required")
+        for key in ("recentStructureSimilarityCheck", "recentOpeningSimilarityCheck"):
+            if editorial.get(key) not in {"passed", "not-available"}:
+                errors.append(
+                    f"meta: editorialStrategy.{key} must be 'passed' or 'not-available'"
+                )
+
+    cta = meta.get("ctaStrategy")
+    if isinstance(cta, dict):
+        if cta.get("primaryCtaTrigger") not in CTA_TRIGGERS:
+            errors.append("meta: ctaStrategy.primaryCtaTrigger is missing or invalid")
+        if cta.get("ctaPresentation") not in CTA_PRESENTATIONS:
+            errors.append("meta: ctaStrategy.ctaPresentation is missing or invalid")
+        if not str(cta.get("ctaPattern", "")).strip():
+            errors.append("meta: ctaStrategy.ctaPattern is required")
+        if cta.get("recentDraftSimilarityCheck") not in {"passed", "not-available"}:
+            errors.append(
+                "meta: ctaStrategy.recentDraftSimilarityCheck must be 'passed' or 'not-available'"
+            )
 
     title = nested(meta, "seo", "seoTitle")
     description = nested(meta, "seo", "metaDescription")

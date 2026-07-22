@@ -251,6 +251,20 @@ Choose a table after checking room dimensions and daily seating needs.
             "topic": "Epoxy table guide",
             "keyword": "epoxy table guide",
             "searchIntent": "commercial investigation",
+            "editorialStrategy": {
+                "structureFamily": "decision-comparison",
+                "selectedStructure": "criteria -> scenarios -> recommendation",
+                "openingMode": "comparison-tension",
+                "openingSignature": "buyers usually compare room fit before finish options",
+                "recentStructureSimilarityCheck": "passed",
+                "recentOpeningSimilarityCheck": "passed",
+            },
+            "ctaStrategy": {
+                "primaryCtaTrigger": "buying-comparison",
+                "ctaPresentation": "integrated-conclusion",
+                "ctaPattern": "Narrow the choice by use case",
+                "recentDraftSimilarityCheck": "passed",
+            },
             "researchSources": [
                 {"url": f"https://example.com/{index}"} for index in range(3)
             ],
@@ -289,6 +303,20 @@ Choose a table after checking room dimensions and daily seating needs.
             "topic": "Epoxy table guide",
             "keyword": "epoxy table guide",
             "searchIntent": "commercial investigation",
+            "editorialStrategy": {
+                "structureFamily": "decision-comparison",
+                "selectedStructure": "criteria -> scenarios -> recommendation",
+                "openingMode": "comparison-tension",
+                "openingSignature": "buyers usually compare room fit before finish options",
+                "recentStructureSimilarityCheck": "passed",
+                "recentOpeningSimilarityCheck": "passed",
+            },
+            "ctaStrategy": {
+                "primaryCtaTrigger": "buying-comparison",
+                "ctaPresentation": "integrated-conclusion",
+                "ctaPattern": "Narrow the choice by use case",
+                "recentDraftSimilarityCheck": "passed",
+            },
             "researchSources": [
                 {"url": f"https://example.com/{index}"} for index in range(3)
             ],
@@ -319,6 +347,23 @@ Choose a table after checking room dimensions and daily seating needs.
         MODULE.validate_meta(meta, slug, handle, errors, warnings)
         self.assertEqual(errors, [])
         self.assertEqual(warnings, [])
+
+    def test_markdown_validator_rejects_reusable_short_answer_opening(self) -> None:
+        sections = "\n".join(f"## Section {index}\nBody" for index in range(1, 6))
+        images = "\n".join(f"![Alt {index}](image-{index}.jpg)" for index in range(1, 6))
+        sources = "\n".join(
+            f"- [Source {index}](https://example.com/{index})" for index in range(1, 4)
+        )
+        faqs = "\n".join(f"### Question {index}?\nAnswer." for index in range(1, 5))
+        markdown = (
+            f"# Title\n{images}\n\nIf you want the short answer, choose this option.\n"
+            f"{sections}\n## Frequently Asked Questions\n{faqs}"
+            f"\n### What sources support this article?\n{sources}\n"
+        )
+        errors: list[str] = []
+        warnings: list[str] = []
+        MODULE.validate_markdown("English Markdown", markdown, errors, warnings)
+        self.assertTrue(any("forbidden reusable" in error for error in errors))
 
 
 if __name__ == "__main__":

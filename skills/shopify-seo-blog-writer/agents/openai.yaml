@@ -1,4 +1,4 @@
 interface:
   display_name: "Shopify SEO Blog Writer"
-  short_description: "Create bilingual SEO blogs with original AI images in Word"
-  default_prompt: "Use $shopify-seo-blog-writer. Topic: [enter your topic]. Generate a complete bilingual Shopify SEO blog with original AI images embedded in English and Chinese DOCX files."
+  short_description: "Create differentiated bilingual SEO blogs in Word"
+  default_prompt: "Use $shopify-seo-blog-writer for [topic] and create a differentiated bilingual Shopify SEO blog with intent-matched structure, original AI images, varied CTA, and English and Chinese DOCX files."
